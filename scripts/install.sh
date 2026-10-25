@@ -69,4 +69,16 @@ test -x /opt/ffmpeg7/bin/ffmpeg && test -x /opt/ffmpeg7/bin/ffprobe
   echo "FaceFusion $(/opt/ffmpeg7/bin/ffmpeg -hide_banner -version | head -1)"
 } > /opt/faceswap/VERSIONS
 cat /opt/faceswap/VERSIONS
+# The runtime base must still carry torch's CUDA 12 libraries (FaceFusion and onnxruntime use them)
+N=$(find /opt/conda -type d -path "*site-packages/nvidia/*/lib" | wc -l)
+echo "nvidia lib dirs: $N"; [ "$N" -ge 8 ]
+python3 -c "import torch; print('torch', torch.__version__, 'cuda', torch.version.cuda)"
+
+# Slim down: build tools were only needed to compile insightface
+apt-get purge -y -qq build-essential > /dev/null && apt-get autoremove -y -qq > /dev/null
+rm -rf /var/lib/apt/lists/*
+pip cache purge > /dev/null 2>&1 || true
+uv cache clean > /dev/null 2>&1 || true
+conda clean -q -a -y > /dev/null
+find /opt/conda /work/ffenv -name "__pycache__" -type d -prune -exec rm -rf {} +
 rm -rf /root/.cache /tmp/*

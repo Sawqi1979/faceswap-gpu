@@ -1,6 +1,7 @@
 # Riz face-swap image: ComfyUI + ReActor + FaceFusion, verified setup from 2026-10-24.
-# Same base as the working onstart runs (torch 2.7.1, CUDA 12.8, cuDNN 9).
-FROM pytorch/pytorch:2.7.1-cuda12.8-cudnn9-devel
+# Same torch 2.7.1 / CUDA 12.8 / cuDNN 9 as the verified runs, but the slim 'runtime' base
+# (4.2 GB vs 9.4 GB compressed). Build tools are installed and removed inside install.sh.
+FROM pytorch/pytorch:2.7.1-cuda12.8-cudnn9-runtime
 
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONUNBUFFERED=1
 RUN mkdir -p /opt/faceswap /work

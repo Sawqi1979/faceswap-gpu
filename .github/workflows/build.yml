@@ -40,3 +40,8 @@ jobs:
           tags: |
             ${{ env.IMAGE }}:latest
             ${{ env.IMAGE }}:${{ github.sha }}
+
+      - name: Report image size
+        run: |
+          SZ=$(docker manifest inspect -v "$IMAGE:latest" | python3 -c "import sys,json; d=json.load(sys.stdin); d=d if isinstance(d,list) else [d]; print(sum(l['size'] for x in d for l in x.get('OCIManifest',x.get('SchemaV2Manifest',{})).get('layers',[])))")
+          echo "::notice title=Image size::$(python3 -c "print(round($SZ/1e9,2))") GB compressed"
