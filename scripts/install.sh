@@ -52,7 +52,7 @@ grep -v -i '^onnxruntime' /work/facefusion/requirements.txt > /tmp/req_ff.txt
 uv pip install -q --no-cache --python /work/ffenv/bin/python -r /tmp/req_ff.txt "onnxruntime-gpu==1.24.4"
 
 # FaceFusion needs ffmpeg >= 5.1 (-fps_mode); Ubuntu's 4.4 makes it read black frames.
-# Static ffmpeg 7.1 for FaceFusion only; ReActor/ComfyUI keep the system ffmpeg they were verified with.
+# Static recent ffmpeg (BtbN master build) for FaceFusion only; ReActor/ComfyUI keep the system ffmpeg they were verified with.
 conda create -q -y -p /opt/ffmpeg7 -c conda-forge --override-channels "ffmpeg=7.1" > /dev/null
 conda clean -q -a -y > /dev/null
 test -x /opt/ffmpeg7/bin/ffmpeg && test -x /opt/ffmpeg7/bin/ffprobe
