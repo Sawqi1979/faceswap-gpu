@@ -61,14 +61,18 @@ if [ "$FF_OK_SETUP" = 1 ]; then
   st "FaceFusion swapping"
   T=$(date +%s)
   cd /work/facefusion
-  if /work/ffenv/bin/python facefusion.py headless-run \
+  if PATH="/opt/ffmpeg7/bin:$PATH" /work/ffenv/bin/python facefusion.py headless-run \
       -s /work/in/swap_face.jpg -t /work/in/swap_input.mp4 -o /work/out/facefusion.mp4 \
       --processors face_swapper face_enhancer \
       --face-swapper-model hyperswap_1b_256 --face-swapper-pixel-boost 512x512 \
       --face-enhancer-model gpen_bfr_1024 --face-enhancer-blend 80 \
       --execution-providers cuda --execution-thread-count 16 \
       --output-video-quality 90 && [ -s /work/out/facefusion.mp4 ]; then
-    F_OK=1; echo "FaceFusion took $(( $(date +%s) - T ))s"
+    # Guard: a black or empty video is a failure, not a result
+    Y=$(ffmpeg -v error -i /work/out/facefusion.mp4 -vf "signalstats,metadata=print:key=lavfi.signalstats.YAVG:file=-" -f null - 2>/dev/null \
+        | awk -F= '/YAVG/{s+=$2;n++} END{if(n) printf "%d", s/n; else print 0}')
+    echo "FaceFusion took $(( $(date +%s) - T ))s, average brightness $Y"
+    if [ "${Y:-0}" -gt 30 ]; then F_OK=1; else echo "WARNING: FaceFusion output is black - treated as failed"; fi
   fi
 fi
 echo "RESULTS reactor=$R_OK facefusion=$F_OK"
