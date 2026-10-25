@@ -53,9 +53,9 @@ uv pip install -q --no-cache --python /work/ffenv/bin/python -r /tmp/req_ff.txt 
 
 # FaceFusion needs ffmpeg >= 5.1 (-fps_mode); Ubuntu's 4.4 makes it read black frames.
 # Static ffmpeg 7.1 for FaceFusion only; ReActor/ComfyUI keep the system ffmpeg they were verified with.
-mkdir -p /opt/ffmpeg7
-wget -q -O /tmp/ff7.tar.xz https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n7.1-latest-linux64-gpl-7.1.tar.xz
-tar -xJf /tmp/ff7.tar.xz -C /opt/ffmpeg7 --strip-components=1
+conda create -q -y -p /opt/ffmpeg7 -c conda-forge --override-channels "ffmpeg=7.1" > /dev/null
+conda clean -q -a -y > /dev/null
+test -x /opt/ffmpeg7/bin/ffmpeg && test -x /opt/ffmpeg7/bin/ffprobe
 /opt/ffmpeg7/bin/ffmpeg -hide_banner -version | head -1
 /opt/ffmpeg7/bin/ffmpeg -hide_banner -f lavfi -i testsrc=size=64x64:rate=5 -frames:v 3 -fps_mode passthrough -pix_fmt bgr24 -f rawvideo -y /dev/null
 
